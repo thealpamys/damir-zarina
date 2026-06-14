@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="kk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дамир & Зарина | Үйлену тойына шақыру</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind config for custom fonts & colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Cormorant Garamond', 'serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            50: '#F4F7F6',
+                            100: '#E5ECEB',
+                            800: '#0C3E35',
+                            900: '#082822',
+                            950: '#041512',
+                        },
+                        gold: {
+                            100: '#FAF3EB',
+                            200: '#F3E6D5',
+                            300: '#EAD3BA',
+                            400: '#D4AF37', // Luxury Gold
+                            500: '#C5A880',
+                        },
+                        accent: '#D4AF37', 
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-out forwards',
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                        'spin-slow': 'spin 6s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom Styles */
+        body {
+            background-color: #FCFAF7;
+            color: #082822;
+        }
+        
+        .glass-light {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(12, 62, 53, 0.04);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Ambient gradient background matching Light Emerald & Gold */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 25%, rgba(12, 62, 53, 0.06), transparent 35%),
+                radial-gradient(circle at 85% 75%, rgba(212, 175, 55, 0.12), transparent 35%),
+                radial-gradient(circle at 50% 50%, rgba(252, 250, 247, 0.95), transparent 70%);
+            filter: blur(80px);
+        }
+
+        #preloader {
+            transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+        }
+        
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 100%;
+            background-color: rgba(212, 175, 55, 0.3);
+            z-index: 0;
+        }
+        @media (max-width: 768px) {
+            .timeline-line::before {
+                left: 24px;
+                transform: none;
+            }
+        }
+
+        /* Arch shape image container */
+        .arch-frame {
+            border-radius: 120px 120px 0 0;
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            padding: 6px;
+        }
+    </style>
+</head>
+<body class="antialiased overflow-hidden" id="body">
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg"></div>
+
+    <!-- Music Element -->
+    <audio id="bg-music" loop></audio>
+
+    <!-- Floating Music Toggle -->
+    <button id="music-toggle" class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full glass-light flex items-center justify-center text-emerald-900 border border-gold-400/40 hover:bg-white transition-all opacity-0 translate-y-4 shadow-md" style="transition: opacity 0.5s, transform 0.5s, background-color 0.2s;">
+        <i data-lucide="music" class="w-5 h-5 text-emerald-900"></i>
+    </button>
+
+    <!-- Preloader (Light Cream & Gold) -->
+    <div id="preloader" class="fixed inset-0 z-[100] bg-gold-100 flex flex-col items-center justify-center text-emerald-900">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.15),transparent_70%)]"></div>
+        <div class="relative z-10 flex flex-col items-center">
+            <h1 class="font-serif text-4xl md:text-6xl mb-12 text-emerald-900 tracking-wide text-center font-light">Дамир & Зарина</h1>
+            <button id="enter-btn" class="px-8 py-3 rounded-full border border-emerald-900 text-emerald-900 hover:text-white font-medium tracking-wide hover:bg-emerald-900 transition-all duration-500 flex items-center gap-3 shadow-[0_0_20px_rgba(12,62,53,0.1)]">
+                Шақыруды ашу
+                <i data-lucide="heart" class="w-4 h-4 fill-current"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content wrapper (hidden initially) -->
+    <div id="main-content" class="h-screen overflow-y-auto opacity-0" style="transition: opacity 1.2s ease-in-out;">
+        
+        <!-- Hero Section -->
+        <section class="min-h-screen flex flex-col items-center justify-center relative px-6 py-20 text-center">
+            <div class="glass-light rounded-3xl p-8 md:p-16 max-w-2xl w-full mx-auto relative z-10">
+                <!-- Arch-style image at the top using actual image from folder -->
+                <div class="mb-8 reveal flex justify-center">
+                    <div class="arch-frame max-w-[200px] md:max-w-[240px]">
+                        <img src="WhatsApp Image 2026-06-05 at 18.51.12.jpeg" alt="Дамир & Зарина" class="w-full aspect-[3/4] object-cover rounded-t-full shadow-lg">
+                    </div>
+                </div>
+
+                <p class="uppercase tracking-[0.25em] text-xs font-semibold text-accent mb-4 reveal" style="transition-delay: 50ms;">Үйлену тойына шақыру</p>
+                <h1 class="font-serif text-4xl md:text-6xl mb-6 text-emerald-900 font-light leading-tight reveal" style="transition-delay: 100ms;">Дамир & Зарина</h1>
+                <p class="text-emerald-800/80 font-light mb-8 max-w-md mx-auto reveal" style="transition-delay: 200ms; font-size: 0.95rem; line-height: 1.7;">
+                    Махаббат пен қуанышқа толы осы ерекше күнді бізбен бірге бөлісуге шақырамыз.
+                </p>
+                
+                <div class="text-xl font-serif text-emerald-900 border-y border-gold-400/30 py-3 mb-8 tracking-widest reveal inline-block px-8 mx-auto" style="transition-delay: 300ms;">
+                    15 ТАМЫЗ 2026
+                </div>
+                
+                <!-- Compact Pill Music Player -->
+                <div class="flex justify-center mb-8 reveal" style="transition-delay: 400ms;">
+                    <div class="inline-flex items-center gap-3 px-4 py-2.5 rounded-full bg-white/80 border border-gold-400/25 shadow-sm text-xs">
+                        <button id="hero-play-pause" class="w-7 h-7 rounded-full bg-emerald-900 text-white flex items-center justify-center hover:bg-emerald-850 transition-all shadow-sm">
+                            <i data-lucide="play" class="w-3 h-3 fill-current text-white" id="hero-play-icon"></i>
+                        </button>
+                        <span class="text-emerald-900 font-medium font-sans truncate max-w-[120px] md:max-w-[160px]" id="track-title">IL'HAN - Val's</span>
+                    </div>
+                </div>
+
+                <div class="reveal" style="transition-delay: 500ms;">
+                    <a href="#rsvp" class="inline-block px-10 py-3.5 bg-emerald-900 text-white rounded-full hover:bg-emerald-850 transition-all duration-300 font-medium tracking-wide shadow-lg shadow-emerald-900/10">
+                        Қатысуды растау
+                    </a>
+                </div>
+            </div>
+            <!-- Scroll indicator -->
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce opacity-40">
+                <i data-lucide="chevron-down" class="w-6 h-6 text-emerald-900"></i>
+            </div>
+        </section>
+
+        <!-- Calendar & Countdown Section -->
+        <section class="py-24 px-6 bg-emerald-50/20">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="font-serif text-3xl md:text-5xl text-emerald-900 mb-4 font-light">Салтанатты сәт</h2>
+                    <div class="w-16 h-[1px] bg-gold-400 mx-auto"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <!-- Calendar Sheet -->
+                    <div class="glass-light p-6 md:p-8 rounded-3xl reveal flex flex-col items-center">
+                        <h3 class="font-serif text-2xl text-emerald-900 mb-6 font-light">Тамыз 2026</h3>
+                        
+                        <!-- Calendar grid -->
+                        <div class="w-full max-w-sm">
+                            <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-accent mb-4">
+                                <div>Дс</div><div>Сс</div><div>Ср</div><div>Бс</div><div>Жм</div><div>Сб</div><div>Жк</div>
+                            </div>
+                            <div class="grid grid-cols-7 gap-y-3 gap-x-2 text-center text-sm text-emerald-950 font-light">
+                                <div></div><div></div><div></div><div></div><div></div>
+                                <div class="py-1">1</div><div class="py-1">2</div>
+                                <div class="py-1">3</div><div class="py-1">4</div><div class="py-1">5</div><div class="py-1">6</div><div class="py-1">7</div><div class="py-1">8</div><div class="py-1">9</div>
+                                <div class="py-1">10</div><div class="py-1">11</div><div class="py-1">12</div><div class="py-1">13</div><div class="py-1">14</div>
+                                <!-- 15th August highlighted -->
+                                <div class="py-1 rounded-full bg-emerald-900 text-gold-100 font-bold border border-gold-400 shadow-[0_0_10px_rgba(212,175,55,0.4)] flex items-center justify-center w-8 h-8 mx-auto">15</div>
+                                <div class="py-1">16</div>
+                                <div class="py-1">17</div><div class="py-1">18</div><div class="py-1">19</div><div class="py-1">20</div><div class="py-1">21</div><div class="py-1">22</div><div class="py-1">23</div>
+                                <div class="py-1">24</div><div class="py-1">25</div><div class="py-1">26</div><div class="py-1">27</div><div class="py-1">28</div><div class="py-1">29</div><div class="py-1">30</div>
+                                <div class="py-1">31</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Countdown Timer -->
+                    <div class="flex flex-col items-center justify-center reveal" style="transition-delay: 100ms;">
+                        <h3 class="font-serif text-2xl text-emerald-900 mb-6 font-light text-center">Тойға дейін қалды:</h3>
+                        
+                        <!-- Countdown grid -->
+                        <div class="grid grid-cols-4 gap-4 w-full max-w-sm">
+                            <div class="glass-light p-4 rounded-2xl flex flex-col items-center shadow-sm">
+                                <span id="days" class="text-3xl md:text-4xl font-serif text-emerald-900">00</span>
+                                <span class="text-[10px] uppercase tracking-wider text-accent mt-2">Күн</span>
+                            </div>
+                            <div class="glass-light p-4 rounded-2xl flex flex-col items-center shadow-sm">
+                                <span id="hours" class="text-3xl md:text-4xl font-serif text-emerald-900">00</span>
+                                <span class="text-[10px] uppercase tracking-wider text-accent mt-2">Сағат</span>
+                            </div>
+                            <div class="glass-light p-4 rounded-2xl flex flex-col items-center shadow-sm">
+                                <span id="minutes" class="text-3xl md:text-4xl font-serif text-emerald-900">00</span>
+                                <span class="text-[10px] uppercase tracking-wider text-accent mt-2">Минут</span>
+                            </div>
+                            <div class="glass-light p-4 rounded-2xl flex flex-col items-center shadow-sm">
+                                <span id="seconds" class="text-3xl md:text-4xl font-serif text-emerald-900">00</span>
+                                <span class="text-[10px] uppercase tracking-wider text-accent mt-2">Секунд</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Event Alert -->
+                        <div id="wedding-started-alert" class="hidden mt-8 text-lg font-serif text-accent tracking-widest text-center animate-pulse">
+                            ҮЙЛЕНУ ТОЙЫ БАСТАЛДЫ! 🎉
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Program -->
+        <section class="py-24 px-6 bg-emerald-50/40">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="font-serif text-3xl md:text-5xl text-emerald-900 mb-4 font-light">Күн бағдарламасы</h2>
+                    <div class="w-16 h-[1px] bg-gold-400 mx-auto"></div>
+                </div>
+
+                <div class="relative timeline-line">
+                    <!-- Item 1 -->
+                    <div class="relative flex items-center md:justify-center mb-12 reveal">
+                        <div class="hidden md:block w-1/2 text-right pr-12">
+                            <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Қонақтарды қарсы алу</h3>
+                            <p class="text-sm text-emerald-800/70 mt-1 font-light">Қонақтарды күтіп алу және орналастыру</p>
+                        </div>
+                        <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-10 h-10 rounded-full glass-light border border-gold-400/40 flex items-center justify-center z-10 bg-white">
+                            <i data-lucide="users" class="w-4 h-4 text-emerald-900"></i>
+                        </div>
+                        <div class="md:w-1/2 pl-16 md:pl-12 w-full">
+                            <div class="md:hidden mb-1">
+                                <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Қонақтарды қарсы алу</h3>
+                                <p class="text-sm text-emerald-800/70 font-light">Қонақтарды күтіп алу және орналастыру</p>
+                            </div>
+                            <span class="text-2xl font-serif text-accent">19:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="relative flex items-center md:justify-center mb-12 reveal">
+                        <div class="hidden md:flex w-1/2 justify-end pr-12">
+                            <span class="text-2xl font-serif text-accent">19:30</span>
+                        </div>
+                        <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-10 h-10 rounded-full glass-light border border-gold-400/40 flex items-center justify-center z-10 bg-white">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-900"></i>
+                        </div>
+                        <div class="md:w-1/2 pl-16 md:pl-12 w-full">
+                            <div class="md:hidden mb-1"><span class="text-2xl font-serif text-accent">19:30</span></div>
+                            <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Беташар рәсімі</h3>
+                            <p class="text-sm text-emerald-800/70 mt-1 font-light">Келінге ақ жол тілеп, салт-дәстүрді дәріптеу</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="relative flex items-center md:justify-center mb-12 reveal">
+                        <div class="hidden md:block w-1/2 text-right pr-12">
+                            <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Той салтанатының басталуы</h3>
+                            <p class="text-sm text-emerald-800/70 mt-1 font-light">Жас жұбайлардың құрметіне арналған мерекелік кештің ашылуы</p>
+                        </div>
+                        <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-10 h-10 rounded-full glass-light border border-gold-400/40 flex items-center justify-center z-10 bg-white">
+                            <i data-lucide="music" class="w-4 h-4 text-emerald-900"></i>
+                        </div>
+                        <div class="md:w-1/2 pl-16 md:pl-12 w-full">
+                            <div class="md:hidden mb-1">
+                                <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Той салтанатының басталуы</h3>
+                                <p class="text-sm text-emerald-800/70 font-light">Жас жұбайлардың құрметіне арналған мерекелік кештің ашылуы</p>
+                            </div>
+                            <span class="text-2xl font-serif text-accent">20:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 4 -->
+                    <div class="relative flex items-center md:justify-center mb-12 reveal">
+                        <div class="hidden md:flex w-1/2 justify-end pr-12">
+                            <span class="text-2xl font-serif text-accent">21:30</span>
+                        </div>
+                        <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-10 h-10 rounded-full glass-light border border-gold-400/40 flex items-center justify-center z-10 bg-white">
+                            <i data-lucide="heart" class="w-4 h-4 text-emerald-900"></i>
+                        </div>
+                        <div class="md:w-1/2 pl-16 md:pl-12 w-full">
+                            <div class="md:hidden mb-1"><span class="text-2xl font-serif text-accent">21:30</span></div>
+                            <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Қонақтардың ақ тілектері</h3>
+                            <p class="text-sm text-emerald-800/70 mt-1 font-light">Тілек айту және құттықтау сәті</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 5 -->
+                    <div class="relative flex items-center md:justify-center mb-12 reveal">
+                        <div class="hidden md:block w-1/2 text-right pr-12">
+                            <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Жас жұбайлардың алғашқы биі</h3>
+                            <p class="text-sm text-emerald-800/70 mt-1 font-light">Махаббат пен сыйластықтың көрінісі</p>
+                        </div>
+                        <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-10 h-10 rounded-full glass-light border border-gold-400/40 flex items-center justify-center z-10 bg-white">
+                            <i data-lucide="heart-handshake" class="w-4 h-4 text-emerald-900"></i>
+                        </div>
+                        <div class="md:w-1/2 pl-16 md:pl-12 w-full">
+                            <div class="md:hidden mb-1">
+                                <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Жас жұбайлардың алғашқы биі</h3>
+                                <p class="text-sm text-emerald-800/70 font-light">Махаббат пен сыйластықтың көрінісі</p>
+                            </div>
+                            <span class="text-2xl font-serif text-accent">22:30</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 6 -->
+                    <div class="relative flex items-center md:justify-center mb-12 reveal">
+                        <div class="hidden md:flex w-1/2 justify-end pr-12">
+                            <span class="text-2xl font-serif text-accent">23:00</span>
+                        </div>
+                        <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-10 h-10 rounded-full glass-light border border-gold-400/40 flex items-center justify-center z-10 bg-white">
+                            <i data-lucide="disc" class="w-4 h-4 text-emerald-900"></i>
+                        </div>
+                        <div class="md:w-1/2 pl-16 md:pl-12 w-full">
+                            <div class="md:hidden mb-1"><span class="text-2xl font-serif text-accent">23:00</span></div>
+                            <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Би кеші</h3>
+                            <p class="text-sm text-emerald-800/70 mt-1 font-light">Қонақтармен бірге көңілді би және ойын-сауық бағдарламасы</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 7 -->
+                    <div class="relative flex items-center md:justify-center mb-12 reveal">
+                        <div class="hidden md:block w-1/2 text-right pr-12">
+                            <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Естелік фотосессия</h3>
+                            <p class="text-sm text-emerald-800/70 mt-1 font-light">Жылы естеліктерді бірге сақтау үшін суретке түсу</p>
+                        </div>
+                        <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-10 h-10 rounded-full glass-light border border-gold-400/40 flex items-center justify-center z-10 bg-white">
+                            <i data-lucide="camera" class="w-4 h-4 text-emerald-900"></i>
+                        </div>
+                        <div class="md:w-1/2 pl-16 md:pl-12 w-full">
+                            <div class="md:hidden mb-1">
+                                <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Естелік фотосессия</h3>
+                                <p class="text-sm text-emerald-800/70 font-light">Жылы естеліктерді бірге сақтау үшін суретке түсу</p>
+                            </div>
+                            <span class="text-2xl font-serif text-accent">23:30</span>
+                        </div>
+                    </div>
+
+                    <!-- Item 8 -->
+                    <div class="relative flex items-center md:justify-center reveal">
+                        <div class="hidden md:flex w-1/2 justify-end pr-12">
+                            <span class="text-2xl font-serif text-accent">00:00</span>
+                        </div>
+                        <div class="absolute left-[24px] md:left-1/2 -translate-x-1/2 w-10 h-10 rounded-full glass-light border border-gold-400/40 flex items-center justify-center z-10 bg-white">
+                            <i data-lucide="cake-slice" class="w-4 h-4 text-emerald-900"></i>
+                        </div>
+                        <div class="md:w-1/2 pl-16 md:pl-12 w-full">
+                            <div class="md:hidden mb-1"><span class="text-2xl font-serif text-accent">00:00</span></div>
+                            <h3 class="font-serif text-xl text-emerald-900 font-light font-medium">Кештің қорытындысы</h3>
+                            <p class="text-sm text-emerald-800/70 mt-1 font-light">Мерекелік кештің салтанатты аяқталуы</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dress Code -->
+        <section class="py-24 px-6 text-center">
+            <div class="max-w-2xl mx-auto glass-light p-10 md:p-16 rounded-3xl reveal border border-gold-400/20">
+                <h2 class="font-serif text-3xl md:text-4xl text-emerald-900 mb-6 font-light">Дресс-код</h2>
+                <p class="text-emerald-800/70 mb-10 leading-relaxed font-light">
+                    Егер сіз біздің мерекеміздің түс гаммасын қолдап, келесі реңктердегі киімдерді таңдасаңыз, біз өте қуанышты боламыз:
+                </p>
+                <div class="flex flex-wrap justify-center gap-6">
+                    <!-- Deep Emerald -->
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-16 h-16 rounded-full shadow-lg border border-gold-400/30" style="background-color: #0A322A;"></div>
+                        <span class="text-xs text-emerald-800/60 font-light">Изумруд</span>
+                    </div>
+                    <!-- Sage / Mint -->
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-16 h-16 rounded-full shadow-lg border border-gold-400/30" style="background-color: #A3B19B;"></div>
+                        <span class="text-xs text-emerald-800/60 font-light">Шалфей</span>
+                    </div>
+                    <!-- Gold / Champagne -->
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-16 h-16 rounded-full shadow-lg border border-gold-400/30" style="background-color: #E6CFA3;"></div>
+                        <span class="text-xs text-emerald-800/60 font-light">Алтын</span>
+                    </div>
+                    <!-- Warm Beige -->
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="w-16 h-16 rounded-full shadow-lg border border-gold-400/30" style="background-color: #D6C5B3;"></div>
+                        <span class="text-xs text-emerald-800/60 font-light">Бежевый</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Location -->
+        <section class="py-24 px-6 bg-emerald-50/40">
+            <div class="max-w-5xl mx-auto text-center reveal">
+                <h2 class="font-serif text-3xl md:text-5xl text-emerald-900 mb-4 font-light">Өтетін орны</h2>
+                <div class="w-16 h-[1px] bg-gold-400 mx-auto mb-10"></div>
+                
+                <h3 class="text-2xl font-serif text-emerald-900 mb-2 font-light">«Elite Grand Hall» салтанат сарайы</h3>
+                <p class="text-emerald-800/70 mb-10 font-light">Алматы облысы, Іле ауданы, Байсерке ауылы, Арқабай көшесі, 282а/1 (1-ші қабат)</p>
+
+                <div class="glass-light p-2 rounded-3xl mb-8 overflow-hidden border border-gold-400/20">
+                    <img src="carta.png" alt="Карта" class="w-full h-auto rounded-2xl">
+                </div>
+
+                <a href="https://2gis.kz/almaty/firm/70000001100536074/77.045059%2C43.510754" target="_blank" class="inline-flex items-center gap-2 px-8 py-3.5 border border-emerald-900 text-emerald-900 rounded-full hover:bg-emerald-900 hover:text-white transition-all duration-300 font-medium tracking-wide">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                    Навигатордан ашу
+                </a>
+            </div>
+        </section>
+
+
+        <!-- RSVP Form -->
+        <section id="rsvp" class="py-24 px-6 min-h-[80vh] flex items-center justify-center">
+            <div class="w-full max-w-xl">
+                <div class="text-center mb-12 reveal">
+                    <h2 class="font-serif text-3xl md:text-5xl text-emerald-900 mb-4 font-light">Қатысуды растау</h2>
+                    <p class="text-emerald-800/70 font-light">Өтінеміз, 1 тамызға дейін қатысатыныңызды растаңыз</p>
+                </div>
+
+                <div class="glass-light rounded-3xl p-8 md:p-12 reveal border border-gold-400/20" id="rsvp-container">
+                    <form id="rsvp-form" class="space-y-6">
+                        <!-- Name -->
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-900 mb-2" for="name">Аты-жөніңіз</label>
+                            <input type="text" id="name" required class="w-full bg-white/70 border border-gold-400/30 focus:border-emerald-800 focus:ring-1 focus:ring-emerald-800 rounded-xl px-4 py-3 outline-none text-emerald-900 transition-all placeholder:text-emerald-850/40" placeholder="Азамат Азаматов">
+                        </div>
+
+                        <!-- Attendance -->
+                        <div>
+                            <label class="block text-sm font-medium text-emerald-900 mb-3">Келе аласыз ба?</label>
+                            <div class="space-y-3">
+                                <label class="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl hover:bg-white/60 transition-all border border-gold-400/20 has-[:checked]:bg-emerald-900/5 has-[:checked]:border-emerald-900">
+                                    <input type="radio" name="attendance" value="Мен келемін" class="accent-emerald-900 w-4 h-4" required onchange="toggleGuestCount(this.value)">
+                                    <span class="text-sm text-emerald-950 font-medium">Мен келемін</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl hover:bg-white/60 transition-all border border-gold-400/20 has-[:checked]:bg-emerald-900/5 has-[:checked]:border-emerald-900">
+                                    <input type="radio" name="attendance" value="Жұбыммен / отбасыммен келемін" class="accent-emerald-900 w-4 h-4" onchange="toggleGuestCount(this.value)">
+                                    <span class="text-sm text-emerald-950 font-medium">Жұбыммен / отбасыммен келемін</span>
+                                </label>
+                                <label class="flex items-center gap-3 cursor-pointer p-3.5 rounded-xl hover:bg-white/60 transition-all border border-gold-400/20 has-[:checked]:bg-emerald-900/5 has-[:checked]:border-emerald-900">
+                                    <input type="radio" name="attendance" value="Өкінішке орай, келе алмаймын" class="accent-emerald-900 w-4 h-4" onchange="toggleGuestCount(this.value)">
+                                    <span class="text-sm text-emerald-950 font-medium">Өкінішке орай, келе алмаймын</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Guest Count (Hidden by default) -->
+                        <div id="guest-count-wrapper" class="overflow-hidden transition-all duration-300 max-h-0 opacity-0">
+                            <label class="block text-sm font-medium text-emerald-900 mb-2" for="guests">Сізбен бірге қанша адам болады?</label>
+                            <input type="number" id="guests" min="1" max="10" class="w-full bg-white/70 border border-gold-400/30 focus:border-emerald-800 focus:ring-1 focus:ring-emerald-800 text-emerald-900 rounded-xl px-4 py-3 outline-none transition-all" placeholder="1">
+                        </div>
+
+                        <!-- Submit Btn -->
+                        <button type="submit" id="submit-btn" class="w-full bg-emerald-900 text-white rounded-xl py-4 font-medium hover:bg-emerald-850 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/10">
+                            <span>Жауапты жіберу</span>
+                            <i data-lucide="send" class="w-4 h-4" id="submit-icon"></i>
+                            <i data-lucide="loader-2" class="w-4 h-4 animate-spin hidden" id="loading-icon"></i>
+                        </button>
+                    </form>
+
+                    <!-- Success Message -->
+                    <div id="success-message" class="hidden flex-col items-center justify-center text-center py-10 opacity-0 transition-opacity duration-500">
+                        <div class="w-16 h-16 bg-accent/20 text-emerald-900 border border-accent/40 rounded-full flex items-center justify-center mb-6">
+                            <i data-lucide="check" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="font-serif text-3xl text-emerald-900 mb-2 font-light">Рақмет!</h3>
+                        <p class="text-emerald-800/80 font-light">Сіздің жауабыңыз сәтті жіберілді. Сізді біздің мерекемізде күтеміз!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 text-center text-xs text-emerald-800/50 border-t border-gold-400/10 bg-emerald-50/30">
+            <p class="tracking-widest">МАХАББАТПЕН, ДАМИР & ЗАРИНА &copy; 2026</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // ----------------------------------------------------
+        // Configuration & Track List
+        // ----------------------------------------------------
+        const TELEGRAM_BOT_TOKEN = '8202542377:AAEIGjEXvNu8kVoQo0wz18qzrcb89gr--4I'; 
+        const TELEGRAM_CHAT_ID = '6570438360';
+
+        const tracks = [
+            {
+                title: "IL'HAN - Val's",
+                url: "ilhan_vals.mp3"
+            }
+        ];
+        let currentTrackIndex = 0;
+
+        // ----------------------------------------------------
+        // Elements
+        // ----------------------------------------------------
+        const enterBtn = document.getElementById('enter-btn');
+        const preloader = document.getElementById('preloader');
+        const mainContent = document.getElementById('main-content');
+        const body = document.getElementById('body');
+        const bgMusic = document.getElementById('bg-music');
+        const musicToggle = document.getElementById('music-toggle');
+        const musicIcon = musicToggle.querySelector('i');
+        
+        // Hero player elements
+        const trackTitle = document.getElementById('track-title');
+        const heroPlayPauseBtn = document.getElementById('hero-play-pause');
+        const heroPlayIcon = document.getElementById('hero-play-icon');
+
+        let isMusicPlaying = false;
+
+        // Update Audio Track
+        function loadTrack(index) {
+            bgMusic.src = tracks[index].url;
+            trackTitle.textContent = tracks[index].title;
+        }
+
+        // Toggle Play / Pause state globally
+        function setPlayState(play) {
+            if (play) {
+                bgMusic.play().then(() => {
+                    isMusicPlaying = true;
+                    heroPlayIcon.setAttribute('data-lucide', 'pause');
+                    musicToggle.classList.remove('bg-white/10');
+                    musicIcon.setAttribute('data-lucide', 'music-4');
+                    musicIcon.classList.add('animate-spin-slow');
+                }).catch(e => {
+                    console.log("Audio autoplay prevented", e);
+                });
+            } else {
+                bgMusic.pause();
+                isMusicPlaying = false;
+                heroPlayIcon.setAttribute('data-lucide', 'play');
+                musicToggle.classList.add('bg-white/10');
+                musicIcon.setAttribute('data-lucide', 'music');
+                musicIcon.classList.remove('animate-spin-slow');
+            }
+            lucide.createIcons();
+        }
+
+        // Load initial track
+        loadTrack(currentTrackIndex);
+
+        // Preloader enter
+        enterBtn.addEventListener('click', () => {
+            preloader.style.opacity = '0';
+            setTimeout(() => {
+                preloader.style.visibility = 'hidden';
+                preloader.style.display = 'none';
+                
+                mainContent.style.opacity = '1';
+                body.classList.remove('overflow-hidden');
+                
+                musicToggle.style.opacity = '1';
+                musicToggle.style.transform = 'translateY(0)';
+                
+                bgMusic.volume = 0.5;
+                setPlayState(true);
+
+                handleScroll();
+            }, 800);
+        });
+
+        // Floating music toggle
+        musicToggle.addEventListener('click', () => {
+            setPlayState(!isMusicPlaying);
+        });
+
+        // Hero Play/Pause button
+        heroPlayPauseBtn.addEventListener('click', () => {
+            setPlayState(!isMusicPlaying);
+        });
+
+
+
+        // ----------------------------------------------------
+        // Countdown Timer Logic
+        // ----------------------------------------------------
+        const targetDate = new Date('August 15, 2026 16:00:00').getTime();
+
+        const countdownInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('days').innerText = "00";
+                document.getElementById('hours').innerText = "00";
+                document.getElementById('minutes').innerText = "00";
+                document.getElementById('seconds').innerText = "00";
+                document.getElementById('wedding-started-alert').classList.remove('hidden');
+                return;
+            }
+
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }, 1000);
+
+        // ----------------------------------------------------
+        // Scroll Reveal Animation
+        // ----------------------------------------------------
+        function handleScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            const windowHeight = window.innerHeight;
+            const elementVisible = 100;
+
+            reveals.forEach(reveal => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('active');
+                }
+            });
+        }
+
+        mainContent.addEventListener('scroll', handleScroll);
+        window.addEventListener('resize', handleScroll);
+
+        // ----------------------------------------------------
+        // Form Logic
+        // ----------------------------------------------------
+        function toggleGuestCount(val) {
+            const wrapper = document.getElementById('guest-count-wrapper');
+            const guestInput = document.getElementById('guests');
+            if (val === 'Жұбыммен / отбасыммен келемін') {
+                wrapper.style.maxHeight = wrapper.scrollHeight + 'px';
+                wrapper.style.opacity = '1';
+                wrapper.classList.add('mt-4');
+                guestInput.setAttribute('required', 'true');
+            } else {
+                wrapper.style.maxHeight = '0';
+                wrapper.style.opacity = '0';
+                wrapper.classList.remove('mt-4');
+                guestInput.removeAttribute('required');
+                guestInput.value = ''; 
+            }
+        }
+
+        const rsvpForm = document.getElementById('rsvp-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const submitIcon = document.getElementById('submit-icon');
+        const loadingIcon = document.getElementById('loading-icon');
+        const successMessage = document.getElementById('success-message');
+
+        rsvpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            submitIcon.classList.add('hidden');
+            loadingIcon.classList.remove('hidden');
+
+            const name = document.getElementById('name').value.trim();
+            const attendance = document.querySelector('input[name="attendance"]:checked').value;
+            const guests = document.getElementById('guests').value;
+
+            let message = `💍 <b>Үйлену тойына жаңа өтінім!</b>\n\n`;
+            message += `👤 <b>Аты-жөні:</b> ${name}\n`;
+            message += `💌 <b>Статус:</b> ${attendance}\n`;
+            if (guests) {
+                message += `👥 <b>Қосымша қонақтар саны:</b> ${guests}\n`;
+            }
+
+            if (TELEGRAM_BOT_TOKEN !== 'YOUR_BOT_TOKEN_HERE') {
+                try {
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            chat_id: TELEGRAM_CHAT_ID,
+                            text: message,
+                            parse_mode: 'HTML'
+                        })
+                    });
+                } catch (error) {
+                    console.error("Қате:", error);
+                }
+            } else {
+                await new Promise(r => setTimeout(r, 1500));
+            }
+
+            rsvpForm.style.display = 'none';
+            successMessage.classList.remove('hidden');
+            successMessage.classList.add('flex');
+            
+            setTimeout(() => {
+                successMessage.style.opacity = '1';
+            }, 50);
+        });
+
+
+    </script>
+</body>
+</html>
